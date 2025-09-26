@@ -8,6 +8,8 @@ import { MesasModule } from './mesas/mesas.module';
 import { PrismaService } from './services/prisma/prisma.service';
 import { CategoriaModule } from './categoria/categoria.module';
 import { RolModule } from './rol/rol.module';
+import { UsuarioModule } from './usuario/usuario.module';
+import { ArgonService } from './services/argon/argon.service';
 @Module({
   imports: [
     ConfigModule.forRoot(),
@@ -24,8 +26,10 @@ import { RolModule } from './rol/rol.module';
     CategoriaModule,
 
     RolModule,
+
+    UsuarioModule,
   ],
   controllers: [AppController],
-  providers: [AppService, PrismaService],
+  providers: [AppService, PrismaService, ArgonService],
 })
 export class AppModule {}
