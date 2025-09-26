@@ -21,7 +21,8 @@ export class ProductoService {
     createProductoDto: CreateProductoDto,
     file: Express.Multer.File,
   ): Promise<RespuestaProducto> {
-    const { categoria_id, descripcion, marca, nombre } = createProductoDto;
+    const { categoria_id, descripcion, marca, nombre, cantidad_producto } =
+      createProductoDto;
     const producto = await this.prismaService.producto.create({
       data: {
         nombre,
@@ -29,6 +30,11 @@ export class ProductoService {
         descripcion,
         marca,
         imagen: file ? `/${file.filename}` : '/default-product.png',
+        inventario: {
+          create: {
+            cantidad: cantidad_producto,
+          },
+        },
       },
     });
 

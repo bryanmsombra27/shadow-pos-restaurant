@@ -13,6 +13,7 @@ import { ArgonService } from './services/argon/argon.service';
 import { ProductoModule } from './producto/producto.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
+import { OrdenModule } from './orden/orden.module';
 
 @Module({
   imports: [
@@ -38,6 +39,8 @@ import { join } from 'path';
     UsuarioModule,
 
     ProductoModule,
+
+    OrdenModule,
   ],
   controllers: [AppController],
   providers: [AppService, PrismaService, ArgonService],
