@@ -6,6 +6,7 @@ import { ConfigModule } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { MesasModule } from './mesas/mesas.module';
 import { PrismaService } from './services/prisma/prisma.service';
+import { CategoriaModule } from './categoria/categoria.module';
 @Module({
   imports: [
     ConfigModule.forRoot(),
@@ -18,6 +19,8 @@ import { PrismaService } from './services/prisma/prisma.service';
     AuthModule,
 
     MesasModule,
+
+    CategoriaModule,
   ],
   controllers: [AppController],
   providers: [AppService, PrismaService],
