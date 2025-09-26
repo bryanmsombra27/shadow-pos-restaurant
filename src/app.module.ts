@@ -7,6 +7,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { MesasModule } from './mesas/mesas.module';
 import { PrismaService } from './services/prisma/prisma.service';
 import { CategoriaModule } from './categoria/categoria.module';
+import { RolModule } from './rol/rol.module';
 @Module({
   imports: [
     ConfigModule.forRoot(),
@@ -21,6 +22,8 @@ import { CategoriaModule } from './categoria/categoria.module';
     MesasModule,
 
     CategoriaModule,
+
+    RolModule,
   ],
   controllers: [AppController],
   providers: [AppService, PrismaService],
