@@ -10,6 +10,10 @@ import { CategoriaModule } from './categoria/categoria.module';
 import { RolModule } from './rol/rol.module';
 import { UsuarioModule } from './usuario/usuario.module';
 import { ArgonService } from './services/argon/argon.service';
+import { ProductoModule } from './producto/producto.module';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
+
 @Module({
   imports: [
     ConfigModule.forRoot(),
@@ -17,6 +21,10 @@ import { ArgonService } from './services/argon/argon.service';
       global: true,
       secret: process.env.JWT_SECRET,
       signOptions: { expiresIn: '1h' },
+    }),
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'uploads', 'images'),
+      serveRoot: '/images', // expone la carpeta en /images
     }),
 
     AuthModule,
@@ -28,6 +36,8 @@ import { ArgonService } from './services/argon/argon.service';
     RolModule,
 
     UsuarioModule,
+
+    ProductoModule,
   ],
   controllers: [AppController],
   providers: [AppService, PrismaService, ArgonService],
