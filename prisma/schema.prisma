@@ -1,0 +1,146 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum EstadoMesa {
+  DISPONIBLE
+  OCUPADO
+}
+
+enum TipoInventarioMovimiento {
+  VENTA
+  DEVOLUCION
+  INGRESO
+}
+
+enum EstadoOrden {
+  PAGADA
+  PENDIENTE
+  CANCELADA
+}
+
+
+
+
+model Rol {
+    id  String  @id  @default(uuid())
+    nombre String
+
+    Usuario Usuario[]
+}
+
+
+model Usuario {
+  id  String  @id  @default(uuid())
+  nombre_completo String
+  telefono String
+  nombre_usuario String  @unique
+  contrasena String
+  created_at DateTime @default(now())
+
+  rol Rol @relation(fields: [rol_id], references: [id])
+  rol_id String
+
+  mesa Mesa[]
+  ordenes Orden[]
+
+} 
+
+
+
+model Mesa {
+  id  String  @id  @default(uuid())
+  nombre String
+  es_vip Boolean @default(false)
+  estado_actual EstadoMesa @default(DISPONIBLE)
+  mesero Usuario? @relation(fields: [mesero_id],references: [id],onDelete: SetNull)
+  mesero_id String?  
+
+  orden Orden[]
+
+}
+
+
+model Categoria {
+  id  String  @id  @default(uuid())
+  nombre String
+
+  producto Producto[]
+}
+
+model Producto{
+  id  String  @id  @default(uuid())
+  nombre String
+  imagen String
+  descripcion String?
+  marca String?
+  categoria Categoria @relation(fields: [categoria_id],references: [id])
+  categoria_id String
+
+  inventario Inventario?
+  movimiento_inventario MovimientosInventario[]
+  pedido_por_orden PedidoPorOrden[]
+} 
+
+model Inventario {
+    id  String  @id  @default(uuid())
+    producto Producto @relation(fields: [producto_id], references: [id]) 
+    producto_id String @unique
+    cantidad Int
+    en_venta Int
+
+}
+
+
+model MovimientosInventario {
+    id  String  @id  @default(uuid())
+    tipo TipoInventarioMovimiento
+    cantidad Int
+    fecha DateTime @default(now())
+    producto Producto @relation(fields: [producto_id], references: [id]) 
+    producto_id String
+
+}
+
+
+model PedidoPorOrden {
+  id  String  @id  @default(uuid()) 
+
+  cantidad Int
+  precio Float 
+
+  producto Producto @relation(fields: [producto_id],references: [id])
+  producto_id String
+
+  orden Orden @relation(fields: [orden_id],references: [id])
+  orden_id String
+}
+
+model Orden {
+  id  String  @id  @default(uuid()) 
+  
+  
+  mesero Usuario @relation(fields: [mesero_id],references: [id])
+  mesero_id String 
+
+  mesa Mesa @relation(fields: [mesa_id],references: [id])
+  mesa_id String
+  estado_orden EstadoOrden @default(PENDIENTE)
+  total Float? 
+
+  pedidos PedidoPorOrden[] 
+
+
+}

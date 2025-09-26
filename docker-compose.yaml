@@ -1,0 +1,13 @@
+name: SHADOW-POS-RESTAURANT
+services:
+  db:
+    container_name: shadow-pos-restaurant
+    image: postgres:16.6
+    restart: always
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: alwaysMyG
+    volumes:
+      - ./db-data:/var/lib/postgresql/data
