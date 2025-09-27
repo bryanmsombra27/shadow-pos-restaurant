@@ -99,6 +99,7 @@ export class UsuarioService {
       usuarios,
       pagina: page,
       total_paginas: totalPages,
+      total_registros: total,
     };
   }
 

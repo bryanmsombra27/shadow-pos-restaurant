@@ -102,6 +102,7 @@ export class ProductoService {
       pagina: page,
       productos,
       total_paginas: totalPages,
+      total_registros: total,
     };
   }
 

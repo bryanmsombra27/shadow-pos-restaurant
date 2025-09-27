@@ -54,6 +54,7 @@ export class MesasService {
       mensaje: 'Mesas encontradas',
       total_paginas: totalPages,
       pagina: page,
+      total_registros: total,
       mesas,
     };
   }

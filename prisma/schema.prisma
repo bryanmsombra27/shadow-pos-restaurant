@@ -124,8 +124,11 @@ model PedidoPorOrden {
   producto Producto @relation(fields: [producto_id],references: [id])
   producto_id String
 
-  orden Orden @relation(fields: [orden_id],references: [id])
+  orden Orden @relation(fields: [orden_id],references: [id],onDelete: Cascade)
   orden_id String
+
+  @@unique([producto_id,orden_id],name: "producto_orden")
+
 }
 
 model Orden {

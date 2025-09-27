@@ -58,6 +58,7 @@ export class CategoriaService {
       mensaje: 'Categorias encontradas',
       pagina: page,
       total_paginas: totalPages,
+      total_registros: total,
     };
   }
 

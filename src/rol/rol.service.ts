@@ -80,6 +80,7 @@ export class RolService {
       roles,
       pagina: page,
       total_paginas: totalPages,
+      total_registros: total,
     };
   }
 
