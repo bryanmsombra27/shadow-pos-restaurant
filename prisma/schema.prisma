@@ -16,7 +16,8 @@ datasource db {
 
 enum EstadoMesa {
   DISPONIBLE
-  OCUPADO
+  OCUPADO 
+  RESERVADO
 }
 
 enum TipoInventarioMovimiento {

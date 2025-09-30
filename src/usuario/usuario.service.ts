@@ -25,16 +25,23 @@ export class UsuarioService {
       const contrasena_encriptada =
         await this.argonService.hashPassword(contrasena);
 
-      const { contrasena: hash, ...usuario } =
-        await this.prismaService.usuario.create({
-          data: {
-            nombre_completo,
-            nombre_usuario,
-            telefono,
-            rol_id,
-            contrasena: contrasena_encriptada,
-          },
-        });
+      const usuario = await this.prismaService.usuario.create({
+        data: {
+          nombre_completo,
+          nombre_usuario,
+          telefono,
+          rol_id,
+          contrasena: contrasena_encriptada,
+        },
+        select: {
+          id: true,
+          rol: true,
+          telefono: true,
+          nombre_usuario: true,
+          nombre_completo: true,
+          rol_id: true,
+        },
+      });
 
       if (!usuario) {
         throw new BadRequestException('No fue posible crear el usuario!');
@@ -103,6 +110,28 @@ export class UsuarioService {
     };
   }
 
+  async todosMeseros() {
+    const meseros = await this.prismaService.usuario.findMany({
+      where: {
+        rol: {
+          nombre: 'mesero',
+        },
+      },
+      select: {
+        id: true,
+        rol: true,
+        telefono: true,
+        nombre_usuario: true,
+        nombre_completo: true,
+        rol_id: true,
+      },
+    });
+
+    return {
+      meseros,
+    };
+  }
+
   async findOne(id: string): Promise<UsuarioFinal> {
     const usuario = await this.prismaService.usuario.findFirst({
       where: {
@@ -140,6 +169,15 @@ export class UsuarioService {
         telefono: telefono ?? usuario.telefono,
         rol_id: rol_id ?? usuario.rol_id,
       },
+      select: {
+        id: true,
+        rol: true,
+        telefono: true,
+        nombre_usuario: true,
+        nombre_completo: true,
+        rol_id: true,
+      },
+
       where: {
         id,
       },

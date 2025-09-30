@@ -42,6 +42,15 @@ export class MesasService {
     const offset = (+page - 1) * limit;
 
     const mesas = await this.prismaService.mesa.findMany({
+      include: {
+        mesero: {
+          select: {
+            id: true,
+            rol_id: true,
+            nombre_completo: true,
+          },
+        },
+      },
       take: limit,
       skip: offset,
     });
@@ -55,6 +64,23 @@ export class MesasService {
       total_paginas: totalPages,
       pagina: page,
       total_registros: total,
+      mesas,
+    };
+  }
+  async todasLasMesas() {
+    const mesas = await this.prismaService.mesa.findMany({
+      include: {
+        mesero: {
+          select: {
+            id: true,
+            rol_id: true,
+            nombre_completo: true,
+          },
+        },
+      },
+    });
+
+    return {
       mesas,
     };
   }
@@ -86,6 +112,10 @@ export class MesasService {
         estado_actual: estado_actual ?? mesa.estado_actual,
         mesero_id: mesero_id ?? mesa.mesero_id,
       },
+      include: {
+        mesero: true,
+      },
+
       where: {
         id,
       },

@@ -26,6 +26,10 @@ export class UsuarioController {
   findAll(@Query() paginationDto: PaginationDto) {
     return this.usuarioService.findAll(paginationDto);
   }
+  @Get('meseros')
+  findAllMeseros() {
+    return this.usuarioService.todosMeseros();
+  }
 
   @Get(':id')
   findOne(@Param('id') id: string) {

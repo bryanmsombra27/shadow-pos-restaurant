@@ -26,6 +26,10 @@ export class RolController {
   findAll(@Query() paginationDto: PaginationDto) {
     return this.rolService.findAll(paginationDto);
   }
+  @Get('all')
+  findAllRegisters() {
+    return this.rolService.findAllRegisters();
+  }
 
   @Get(':id')
   findOne(@Param('id') id: string) {

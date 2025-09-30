@@ -84,6 +84,20 @@ export class RolService {
     };
   }
 
+  async findAllRegisters(): Promise<{ roles: Rol[] }> {
+    const roles = await this.prismaService.rol.findMany({
+      where: {
+        nombre: {
+          not: 'root',
+        },
+      },
+    });
+
+    return {
+      roles,
+    };
+  }
+
   async findOne(id: string): Promise<Rol> {
     const rol = await this.prismaService.rol.findFirst({
       where: {

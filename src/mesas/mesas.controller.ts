@@ -26,6 +26,10 @@ export class MesasController {
   findAll(@Query() paginationDto: PaginationDto) {
     return this.mesasService.findAll(paginationDto);
   }
+  @Get('all')
+  todasLasMesas() {
+    return this.mesasService.todasLasMesas();
+  }
 
   @Get(':id')
   findOne(@Param('id') id: string) {
