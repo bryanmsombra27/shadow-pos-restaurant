@@ -1,6 +1,6 @@
 import { PartialType } from '@nestjs/mapped-types';
 import { CreateMesaDto } from './create-mesa.dto';
-import { IsOptional, IsString } from 'class-validator';
+import { IsEnum, IsOptional, IsString } from 'class-validator';
 import { EstadoMesa, type Orden } from 'generated/prisma';
 
 export class UpdateMesaDto extends PartialType(CreateMesaDto) {
@@ -12,5 +12,6 @@ export class UpdateMesaDto extends PartialType(CreateMesaDto) {
   es_vip: boolean;
 
   @IsOptional()
+  @IsEnum(EstadoMesa)
   estado_actual: EstadoMesa;
 }

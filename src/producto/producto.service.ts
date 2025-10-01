@@ -29,12 +29,16 @@ export class ProductoService {
         categoria_id,
         descripcion,
         marca,
-        imagen: file ? `/${file.filename}` : '/default-product.png',
+        imagen: file ? `/${file.filename}` : '/default-product.jpg',
         inventario: {
           create: {
             cantidad: cantidad_producto,
           },
         },
+      },
+      include: {
+        categoria: true,
+        inventario: true,
       },
     });
 
@@ -88,6 +92,10 @@ export class ProductoService {
       where: whereClause,
       take: limit,
       skip: offset,
+      include: {
+        categoria: true,
+        inventario: true,
+      },
     });
 
     const total = await this.prismaService.producto.count({
@@ -110,6 +118,10 @@ export class ProductoService {
     const producto = await this.prismaService.producto.findFirst({
       where: {
         id,
+      },
+      include: {
+        categoria: true,
+        inventario: true,
       },
     });
     if (!producto) {
@@ -137,6 +149,10 @@ export class ProductoService {
       where: {
         id,
       },
+      include: {
+        categoria: true,
+        inventario: true,
+      },
     });
 
     return {
@@ -151,6 +167,10 @@ export class ProductoService {
     const producto = await this.prismaService.producto.delete({
       where: {
         id,
+      },
+
+      include: {
+        categoria: true,
       },
     });
 

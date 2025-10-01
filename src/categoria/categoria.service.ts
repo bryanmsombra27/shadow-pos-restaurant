@@ -62,6 +62,14 @@ export class CategoriaService {
     };
   }
 
+  async todasLasCategorias() {
+    const categorias = await this.prismaService.categoria.findMany();
+
+    return {
+      categorias,
+    };
+  }
+
   async findOne(id: string): Promise<Categoria> {
     const categoria = await this.prismaService.categoria.findFirst({
       where: {

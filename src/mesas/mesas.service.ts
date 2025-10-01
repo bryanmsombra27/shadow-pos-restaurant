@@ -12,6 +12,7 @@ import {
   RespuestaObtenerTodasLasMesas,
 } from 'src/interfaces/mesa.interface';
 import { Mesa } from 'generated/prisma';
+import { ActualizarEstadoMesaDto } from './dto/actualizar-estado-mesa.dto';
 
 @Injectable()
 export class MesasService {
@@ -127,6 +128,30 @@ export class MesasService {
     };
   }
 
+  async actualizarEstadoMesa(
+    ActualizarEstadoMesaDto: ActualizarEstadoMesaDto,
+  ): Promise<RespuestaMesa> {
+    const { estado_mesa, mesa_id, mesero_id } = ActualizarEstadoMesaDto;
+
+    const mesa = await this.prismaService.mesa.update({
+      data: {
+        mesero_id,
+        estado_actual: estado_mesa,
+      },
+      include: {
+        mesero: true,
+      },
+
+      where: {
+        id: mesa_id,
+      },
+    });
+
+    return {
+      mensaje: 'Mesa tomada con exito!',
+      mesa,
+    };
+  }
   async remove(id: string): Promise<RespuestaMesa> {
     await this.findOne(id);
 

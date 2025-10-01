@@ -12,6 +12,7 @@ import { MesasService } from './mesas.service';
 import { CreateMesaDto } from './dto/create-mesa.dto';
 import { UpdateMesaDto } from './dto/update-mesa.dto';
 import { PaginationDto } from 'src/common/dtos/pagination.dto';
+import { ActualizarEstadoMesaDto } from './dto/actualizar-estado-mesa.dto';
 
 @Controller('mesas')
 export class MesasController {
@@ -31,6 +32,10 @@ export class MesasController {
     return this.mesasService.todasLasMesas();
   }
 
+  @Patch('estado')
+  actualizarEstadoMesa(@Body() actualizarMesaDto: ActualizarEstadoMesaDto) {
+    return this.mesasService.actualizarEstadoMesa(actualizarMesaDto);
+  }
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.mesasService.findOne(id);

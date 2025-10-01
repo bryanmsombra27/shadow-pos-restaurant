@@ -27,6 +27,11 @@ export class CategoriaController {
     return this.categoriaService.findAll(paginationDto);
   }
 
+  @Get('all')
+  findAllCategories() {
+    return this.categoriaService.todasLasCategorias();
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.categoriaService.findOne(id);
