@@ -47,6 +47,10 @@ export class ProductoController {
   findAll(@Query() paginationDto: PaginationDto) {
     return this.productoService.findAll(paginationDto);
   }
+  @Get('all')
+  todosLosProductos() {
+    return this.productoService.todosLosProductos();
+  }
 
   @Get(':id')
   findOne(@Param('id') id: string) {

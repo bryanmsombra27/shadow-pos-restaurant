@@ -27,6 +27,15 @@ export class OrdenController {
     return this.ordenService.findAll(paginationDto);
   }
 
+  @Get('mesa/:id')
+  ordenPorMesa(@Param('id') id: string) {
+    return this.ordenService.obtenerOrdenPorMesa(id);
+  }
+  @Patch('completado/:id')
+  completarOrden(@Param('id') id: string) {
+    return this.ordenService.completarOrden(id);
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.ordenService.findOne(id);

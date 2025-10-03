@@ -27,4 +27,8 @@ export class CreateProductoDto {
   @IsNumber()
   @Min(0)
   cantidad_producto: number;
+  @IsNotEmpty()
+  @IsNumber()
+  @Min(0)
+  precio: number;
 }

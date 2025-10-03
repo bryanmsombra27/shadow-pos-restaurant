@@ -21,11 +21,18 @@ export class ProductoService {
     createProductoDto: CreateProductoDto,
     file: Express.Multer.File,
   ): Promise<RespuestaProducto> {
-    const { categoria_id, descripcion, marca, nombre, cantidad_producto } =
-      createProductoDto;
+    const {
+      categoria_id,
+      descripcion,
+      marca,
+      nombre,
+      cantidad_producto,
+      precio,
+    } = createProductoDto;
     const producto = await this.prismaService.producto.create({
       data: {
         nombre,
+        precio,
         categoria_id,
         descripcion,
         marca,
@@ -114,6 +121,14 @@ export class ProductoService {
     };
   }
 
+  async todosLosProductos() {
+    const productos = await this.prismaService.producto.findMany();
+
+    return {
+      productos,
+    };
+  }
+
   async findOne(id: string): Promise<Producto> {
     const producto = await this.prismaService.producto.findFirst({
       where: {
@@ -135,7 +150,8 @@ export class ProductoService {
     id: string,
     updateProductoDto: UpdateProductoDto,
   ): Promise<RespuestaProducto> {
-    const { categoria_id, descripcion, marca, nombre } = updateProductoDto;
+    const { categoria_id, descripcion, marca, nombre, precio } =
+      updateProductoDto;
 
     const producto = await this.findOne(id);
 
@@ -145,6 +161,7 @@ export class ProductoService {
         descripcion: descripcion ?? producto.descripcion,
         nombre: nombre ?? producto.nombre,
         marca: marca ?? producto.marca,
+        precio: precio ?? producto.precio,
       },
       where: {
         id,
