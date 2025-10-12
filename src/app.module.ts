@@ -14,6 +14,7 @@ import { ProductoModule } from './producto/producto.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { OrdenModule } from './orden/orden.module';
+import { BarGateway } from './bar/bar.gateway';
 
 @Module({
   imports: [
@@ -43,6 +44,6 @@ import { OrdenModule } from './orden/orden.module';
     OrdenModule,
   ],
   controllers: [AppController],
-  providers: [AppService, PrismaService, ArgonService],
+  providers: [AppService, PrismaService, ArgonService, BarGateway],
 })
 export class AppModule {}
