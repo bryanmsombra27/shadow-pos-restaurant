@@ -10,6 +10,7 @@ import { PrismaService } from 'src/services/prisma/prisma.service';
 import { ArgonService } from 'src/services/argon/argon.service';
 import { PaginationDto } from 'src/common/dtos/pagination.dto';
 import { erroresDB } from 'src/common/utils/gestor_errores';
+import { Prisma } from 'generated/prisma';
 
 @Injectable()
 export class UsuarioService {
@@ -65,16 +66,16 @@ export class UsuarioService {
     const page = paginationDto.page ?? 1;
     const limit = paginationDto.limit ?? 10;
     const offset = (+page - 1) * limit;
-
-    const usuarios = await this.prismaService.usuario.findMany({
-      where: {
-        rol: {
-          nombre: {
-            not: 'root',
-          },
+    const whereClause: Prisma.UsuarioWhereInput = {
+      rol: {
+        nombre: {
+          not: 'root',
         },
       },
+    };
 
+    const clause: Prisma.UsuarioFindManyArgs = {
+      where: whereClause,
       skip: offset,
       take: limit,
       select: {
@@ -86,16 +87,34 @@ export class UsuarioService {
         rol: true,
         rol_id: true,
       },
-    });
+    };
+    if (paginationDto.search) {
+      clause.where = {
+        AND: [
+          whereClause,
+
+          {
+            OR: [
+              {
+                nombre_completo: {
+                  contains: paginationDto.search,
+                },
+              },
+              {
+                telefono: {
+                  contains: paginationDto.search,
+                },
+              },
+            ],
+          },
+        ],
+      };
+    }
+
+    const usuarios = await this.prismaService.usuario.findMany(clause);
 
     const total = await this.prismaService.usuario.count({
-      where: {
-        rol: {
-          nombre: {
-            not: 'root',
-          },
-        },
-      },
+      where: clause.where,
     });
 
     // ceil redondear hacia arriba

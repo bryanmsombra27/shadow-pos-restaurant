@@ -11,7 +11,7 @@ import {
   RespuestaObtenerCategorias,
 } from 'src/interfaces/categoria.interface';
 import { PaginationDto } from 'src/common/dtos/pagination.dto';
-import { Categoria } from 'generated/prisma';
+import { Categoria, Prisma } from 'generated/prisma';
 
 @Injectable()
 export class CategoriaService {
@@ -43,12 +43,24 @@ export class CategoriaService {
     const limit = pagination.limit ?? 10;
     const offset = (+page - 1) * limit;
 
-    const categorias = await this.prismaService.categoria.findMany({
+    const clause: Prisma.CategoriaFindManyArgs = {
       take: limit,
       skip: offset,
-    });
+    };
 
-    const total = await this.prismaService.categoria.count();
+    if (pagination.search) {
+      clause.where = {
+        nombre: {
+          contains: pagination.search,
+        },
+      };
+    }
+
+    const categorias = await this.prismaService.categoria.findMany(clause);
+
+    const total = await this.prismaService.categoria.count({
+      where: clause.where,
+    });
 
     // ceil redondear hacia arriba
     const totalPages = Math.ceil(total / limit);
