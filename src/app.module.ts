@@ -14,10 +14,16 @@ import { ProductoModule } from './producto/producto.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { OrdenModule } from './orden/orden.module';
+import { CacheModule } from '@nestjs/cache-manager';
+import { CacheService } from './common/services/cache/cache.service';
 
 @Module({
   imports: [
     ConfigModule.forRoot(),
+    CacheModule.register({
+      isGlobal: true,
+    }),
+
     JwtModule.register({
       global: true,
       secret: process.env.JWT_SECRET,
@@ -43,6 +49,6 @@ import { OrdenModule } from './orden/orden.module';
     OrdenModule,
   ],
   controllers: [AppController],
-  providers: [AppService, PrismaService, ArgonService],
+  providers: [AppService, PrismaService, ArgonService, CacheService],
 })
 export class AppModule {}

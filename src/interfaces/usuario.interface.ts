@@ -8,6 +8,17 @@ export interface RespuestaUsuario {
   usuario: UsuarioFinal;
 }
 
+export interface LoginUsuario {
+  mensaje: string;
+  token: string;
+}
+
 export interface RespuestaObtenerUsuarios extends RespuestaGenericaObtenerTodo {
   usuarios: UsuarioFinal[];
+}
+
+export interface PayloadToken {
+  id: string;
+  nombre: string;
+  rol_id: string;
 }

@@ -7,23 +7,28 @@ import {
 // import { Request } from 'express';
 import { Observable } from 'rxjs';
 import { AuthService } from '../auth/auth.service';
+import { CacheService } from 'src/common/services/cache/cache.service';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly cacheService: CacheService,
+  ) {}
 
-  canActivate(
-    context: ExecutionContext,
-  ): boolean | Promise<boolean> | Observable<boolean> {
+  async canActivate(context: ExecutionContext) {
     const request = context.switchToHttp().getRequest();
 
     const token = this.getTokenFromHeader(request);
 
-    if (!token) throw new UnauthorizedException('el token es requerido');
+    if (!token || token.length == 0)
+      throw new UnauthorizedException('el token es requerido');
 
-    const user = this.authService.verifyToken(token);
+    this.authService.verifyToken(token);
 
-    request['user'] = user;
+    const usuario = await this.cacheService.getFromCache(token);
+
+    request['user'] = usuario;
 
     return true;
   }

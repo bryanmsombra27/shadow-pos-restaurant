@@ -2,6 +2,7 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateUsuarioDto } from './dto/create-usuario.dto';
 import { UpdateUsuarioDto } from './dto/update-usuario.dto';
 import {
+  LoginUsuario,
   RespuestaObtenerUsuarios,
   RespuestaUsuario,
   UsuarioFinal,
@@ -11,12 +12,14 @@ import { ArgonService } from 'src/services/argon/argon.service';
 import { PaginationDto } from 'src/common/dtos/pagination.dto';
 import { erroresDB } from 'src/common/utils/gestor_errores';
 import { Prisma } from 'generated/prisma';
+import { AuthService } from 'src/auth/auth.service';
 
 @Injectable()
 export class UsuarioService {
   constructor(
     private readonly prismaService: PrismaService,
     private readonly argonService: ArgonService,
+    private readonly authService: AuthService,
   ) {}
 
   async create(createUsuarioDto: CreateUsuarioDto): Promise<RespuestaUsuario> {
@@ -48,9 +51,16 @@ export class UsuarioService {
         throw new BadRequestException('No fue posible crear el usuario!');
       }
 
+      // const token = this.authService.generateToken({
+      //   id: usuario.id,
+      //   nombre: usuario.nombre_usuario,
+      //   rol_id: usuario.rol_id,
+      // });
+
       return {
         mensaje: 'Usuario creado con exito!',
         usuario,
+        // token,
       };
     } catch (error) {
       console.log(error, 'ERROR DB');
