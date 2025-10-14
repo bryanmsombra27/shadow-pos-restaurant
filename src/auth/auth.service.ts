@@ -3,6 +3,7 @@ import {
   Injectable,
   NotFoundException,
   UnauthorizedException,
+  Request,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import {
@@ -80,8 +81,25 @@ export class AuthService {
     }
 
     return {
-      mensaje: 'login exioso!',
+      mensaje: 'login exitoso!',
       token,
+    };
+  }
+
+  async logout(req: Request) {
+    const token = req.headers['authorization']
+      ? req.headers['authorization'].split(' ')[1]
+      : '';
+
+    if (!token)
+      throw new UnauthorizedException(
+        'El token no es valido o el usuario ya cerro sesion',
+      );
+
+    await this.cacheService.deleteFromCache(token);
+
+    return {
+      mensaje: 'Sesion cerrada con exito!',
     };
   }
 }
