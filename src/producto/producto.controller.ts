@@ -9,6 +9,7 @@ import {
   UseInterceptors,
   UploadedFile,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { ProductoService } from './producto.service';
 import { CreateProductoDto } from './dto/create-producto.dto';
@@ -17,7 +18,9 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
 import { PaginationDto } from 'src/common/dtos/pagination.dto';
+import { AuthGuard } from 'src/guards/auth.guard';
 
+@UseGuards(AuthGuard)
 @Controller('producto')
 export class ProductoController {
   constructor(private readonly productoService: ProductoService) {}

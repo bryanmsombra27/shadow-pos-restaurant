@@ -7,12 +7,15 @@ import {
   Param,
   Delete,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { RolService } from './rol.service';
 import { CreateRolDto } from './dto/create-rol.dto';
 import { UpdateRolDto } from './dto/update-rol.dto';
 import { PaginationDto } from 'src/common/dtos/pagination.dto';
+import { AuthGuard } from 'src/guards/auth.guard';
 
+@UseGuards(AuthGuard)
 @Controller('rol')
 export class RolController {
   constructor(private readonly rolService: RolService) {}

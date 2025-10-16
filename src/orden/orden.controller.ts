@@ -7,12 +7,15 @@ import {
   Param,
   Delete,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { OrdenService } from './orden.service';
 import { CreateOrdenDto } from './dto/create-orden.dto';
 import { UpdateOrdenDto } from './dto/update-orden.dto';
 import { PaginationDto } from 'src/common/dtos/pagination.dto';
+import { AuthGuard } from 'src/guards/auth.guard';
 
+@UseGuards(AuthGuard)
 @Controller('orden')
 export class OrdenController {
   constructor(private readonly ordenService: OrdenService) {}

@@ -1,24 +1,106 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+  Request,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import {
+  LoginUsuario,
+  PayloadToken,
+  UsuarioFinal,
+} from 'src/interfaces/usuario.interface';
+import { LoginDto } from './dto/login.dto';
+import { PrismaService } from 'src/services/prisma/prisma.service';
+import { ArgonService } from 'src/services/argon/argon.service';
+import { Usuario } from 'generated/prisma';
+import { CacheService } from 'src/common/services/cache/cache.service';
 
 @Injectable()
 export class AuthService {
-  constructor(private readonly jwtService: JwtService) {}
-  generateToken(payload: any) {
-    const token = this.jwtService.sign(payload, {
-      secret: process.env.JWT_SECRET,
-    });
+  constructor(
+    private readonly jwtService: JwtService,
+    private readonly prismaService: PrismaService,
+    private readonly argonService: ArgonService,
+    private readonly cacheService: CacheService,
+  ) {}
+  generateToken(payload: PayloadToken) {
+    const token = this.jwtService.sign(payload);
 
     return token;
   }
 
   verifyToken(token: string) {
-    const decodeToken = this.jwtService.verify(token, {
-      secret: process.env.JWT_SECRET,
+    try {
+      const decodeToken = this.jwtService.verify(token);
+      console.log(decodeToken, 'decode token');
+
+      return decodeToken;
+    } catch (error) {
+      this.cacheService.deleteFromCache(token);
+      throw new UnauthorizedException('Token invalido');
+    }
+  }
+
+  async login(loginDto: LoginDto): Promise<LoginUsuario> {
+    const { usuario, password } = loginDto;
+    const user = await this.prismaService.usuario.findUnique({
+      where: {
+        nombre_usuario: usuario,
+      },
+      include: {
+        rol: true,
+      },
     });
+    if (!user) {
+      throw new NotFoundException('El usuario es invalido o no existe');
+    }
 
-    if (!decodeToken) throw new UnauthorizedException('Token invalido');
+    const { contrasena, created_at, ...userLogin } = user;
+    const isValidPassword = await this.argonService.comparePassword(
+      password,
+      contrasena,
+    );
 
-    return decodeToken;
+    if (!isValidPassword) {
+      throw new BadRequestException(
+        'El usuario o la contraseña no son validos',
+      );
+    }
+    const token = this.generateToken({
+      id: userLogin.id,
+      nombre: userLogin.nombre_usuario,
+      rol_id: userLogin.rol_id,
+    });
+    const wasCached = await this.cacheService.setToCache(token, userLogin);
+    if (wasCached) {
+      console.log('USUARIO CACHEADO CON EXITO');
+      const user = await this.cacheService.getFromCache(token);
+
+      console.log('USUARIO EN CACHE STORE', user);
+    }
+
+    return {
+      mensaje: 'login exitoso!',
+      token,
+    };
+  }
+
+  async logout(req: Request) {
+    const token = req.headers['authorization']
+      ? req.headers['authorization'].split(' ')[1]
+      : '';
+
+    if (!token)
+      throw new UnauthorizedException(
+        'El token no es valido o el usuario ya cerro sesion',
+      );
+
+    await this.cacheService.deleteFromCache(token);
+
+    return {
+      mensaje: 'Sesion cerrada con exito!',
+    };
   }
 }

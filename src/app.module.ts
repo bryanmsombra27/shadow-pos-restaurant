@@ -15,10 +15,16 @@ import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { OrdenModule } from './orden/orden.module';
 import { BarGateway } from './bar/bar.gateway';
+import { CacheModule } from '@nestjs/cache-manager';
+import { CacheService } from './common/services/cache/cache.service';
 
 @Module({
   imports: [
     ConfigModule.forRoot(),
+    CacheModule.register({
+      isGlobal: true,
+    }),
+
     JwtModule.register({
       global: true,
       secret: process.env.JWT_SECRET,
@@ -44,6 +50,12 @@ import { BarGateway } from './bar/bar.gateway';
     OrdenModule,
   ],
   controllers: [AppController],
-  providers: [AppService, PrismaService, ArgonService, BarGateway],
+  providers: [
+    AppService,
+    PrismaService,
+    ArgonService,
+    BarGateway,
+    CacheService,
+  ],
 })
 export class AppModule {}

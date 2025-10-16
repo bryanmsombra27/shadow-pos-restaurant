@@ -2,6 +2,7 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateUsuarioDto } from './dto/create-usuario.dto';
 import { UpdateUsuarioDto } from './dto/update-usuario.dto';
 import {
+  LoginUsuario,
   RespuestaObtenerUsuarios,
   RespuestaUsuario,
   UsuarioFinal,
@@ -10,12 +11,15 @@ import { PrismaService } from 'src/services/prisma/prisma.service';
 import { ArgonService } from 'src/services/argon/argon.service';
 import { PaginationDto } from 'src/common/dtos/pagination.dto';
 import { erroresDB } from 'src/common/utils/gestor_errores';
+import { Prisma } from 'generated/prisma';
+import { AuthService } from 'src/auth/auth.service';
 
 @Injectable()
 export class UsuarioService {
   constructor(
     private readonly prismaService: PrismaService,
     private readonly argonService: ArgonService,
+    private readonly authService: AuthService,
   ) {}
 
   async create(createUsuarioDto: CreateUsuarioDto): Promise<RespuestaUsuario> {
@@ -47,9 +51,16 @@ export class UsuarioService {
         throw new BadRequestException('No fue posible crear el usuario!');
       }
 
+      // const token = this.authService.generateToken({
+      //   id: usuario.id,
+      //   nombre: usuario.nombre_usuario,
+      //   rol_id: usuario.rol_id,
+      // });
+
       return {
         mensaje: 'Usuario creado con exito!',
         usuario,
+        // token,
       };
     } catch (error) {
       console.log(error, 'ERROR DB');
@@ -65,16 +76,16 @@ export class UsuarioService {
     const page = paginationDto.page ?? 1;
     const limit = paginationDto.limit ?? 10;
     const offset = (+page - 1) * limit;
-
-    const usuarios = await this.prismaService.usuario.findMany({
-      where: {
-        rol: {
-          nombre: {
-            not: 'root',
-          },
+    const whereClause: Prisma.UsuarioWhereInput = {
+      rol: {
+        nombre: {
+          not: 'root',
         },
       },
+    };
 
+    const clause: Prisma.UsuarioFindManyArgs = {
+      where: whereClause,
       skip: offset,
       take: limit,
       select: {
@@ -86,16 +97,34 @@ export class UsuarioService {
         rol: true,
         rol_id: true,
       },
-    });
+    };
+    if (paginationDto.search) {
+      clause.where = {
+        AND: [
+          whereClause,
+
+          {
+            OR: [
+              {
+                nombre_completo: {
+                  contains: paginationDto.search,
+                },
+              },
+              {
+                telefono: {
+                  contains: paginationDto.search,
+                },
+              },
+            ],
+          },
+        ],
+      };
+    }
+
+    const usuarios = await this.prismaService.usuario.findMany(clause);
 
     const total = await this.prismaService.usuario.count({
-      where: {
-        rol: {
-          nombre: {
-            not: 'root',
-          },
-        },
-      },
+      where: clause.where,
     });
 
     // ceil redondear hacia arriba

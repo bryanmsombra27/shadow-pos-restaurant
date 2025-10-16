@@ -11,7 +11,7 @@ import {
   RespuestaMesa,
   RespuestaObtenerTodasLasMesas,
 } from 'src/interfaces/mesa.interface';
-import { Mesa } from 'generated/prisma';
+import { Mesa, Prisma } from 'generated/prisma';
 import { ActualizarEstadoMesaDto } from './dto/actualizar-estado-mesa.dto';
 
 @Injectable()
@@ -41,8 +41,7 @@ export class MesasService {
     const page = paginationDto.page ?? 1;
     const limit = paginationDto.limit ?? 10;
     const offset = (+page - 1) * limit;
-
-    const mesas = await this.prismaService.mesa.findMany({
+    const clause: Prisma.MesaFindManyArgs = {
       include: {
         mesero: {
           select: {
@@ -54,8 +53,31 @@ export class MesasService {
       },
       take: limit,
       skip: offset,
+    };
+
+    if (paginationDto.search) {
+      clause.where = {
+        OR: [
+          {
+            nombre: {
+              contains: paginationDto.search,
+            },
+          },
+          {
+            mesero: {
+              nombre_completo: {
+                contains: paginationDto.search,
+              },
+            },
+          },
+        ],
+      };
+    }
+
+    const mesas = await this.prismaService.mesa.findMany(clause);
+    const total = await this.prismaService.mesa.count({
+      where: clause.where,
     });
-    const total = await this.prismaService.mesa.count();
 
     // ceil redondear hacia arriba
     const totalPages = Math.ceil(total / limit);

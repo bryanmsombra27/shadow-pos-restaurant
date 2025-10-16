@@ -7,13 +7,16 @@ import {
   Param,
   Delete,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { MesasService } from './mesas.service';
 import { CreateMesaDto } from './dto/create-mesa.dto';
 import { UpdateMesaDto } from './dto/update-mesa.dto';
 import { PaginationDto } from 'src/common/dtos/pagination.dto';
 import { ActualizarEstadoMesaDto } from './dto/actualizar-estado-mesa.dto';
+import { AuthGuard } from 'src/guards/auth.guard';
 
+@UseGuards(AuthGuard)
 @Controller('mesas')
 export class MesasController {
   constructor(private readonly mesasService: MesasService) {}
