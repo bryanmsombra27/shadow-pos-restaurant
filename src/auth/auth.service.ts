@@ -38,6 +38,7 @@ export class AuthService {
 
       return decodeToken;
     } catch (error) {
+      this.cacheService.deleteFromCache(token);
       throw new UnauthorizedException('Token invalido');
     }
   }
