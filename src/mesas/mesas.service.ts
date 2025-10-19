@@ -13,10 +13,15 @@ import {
 } from 'src/interfaces/mesa.interface';
 import { Mesa, Prisma } from 'generated/prisma';
 import { ActualizarEstadoMesaDto } from './dto/actualizar-estado-mesa.dto';
+import { BarGateway } from 'src/bar/bar.gateway';
+import { Socket } from 'socket.io';
 
 @Injectable()
 export class MesasService {
-  constructor(private readonly prismaService: PrismaService) {}
+  constructor(
+    private readonly prismaService: PrismaService,
+    private readonly barGateway: BarGateway,
+  ) {}
 
   async create(createMesaDto: CreateMesaDto): Promise<RespuestaMesa> {
     const mesa = await this.prismaService.mesa.create({
@@ -151,6 +156,7 @@ export class MesasService {
   }
 
   async actualizarEstadoMesa(
+    socket: Socket,
     ActualizarEstadoMesaDto: ActualizarEstadoMesaDto,
   ): Promise<RespuestaMesa> {
     const { estado_mesa, mesa_id, mesero_id } = ActualizarEstadoMesaDto;
@@ -168,6 +174,7 @@ export class MesasService {
         id: mesa_id,
       },
     });
+    this.barGateway.handleTableTaken(socket, mesa);
 
     return {
       mensaje: 'Mesa tomada con exito!',

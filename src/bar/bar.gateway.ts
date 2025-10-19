@@ -8,6 +8,7 @@ import {
   WebSocketGateway,
   WebSocketServer,
 } from '@nestjs/websockets';
+import { type Mesa } from 'generated/prisma';
 import { Socket, Server } from 'socket.io';
 
 @WebSocketGateway({
@@ -17,8 +18,8 @@ import { Socket, Server } from 'socket.io';
   },
 })
 export class BarGateway implements OnGatewayConnection, OnGatewayDisconnect {
-  //   @WebSocketServer()
-  // server: Server;
+  @WebSocketServer()
+  server: Server;
 
   afterInit(server: Server) {}
 
@@ -35,5 +36,11 @@ export class BarGateway implements OnGatewayConnection, OnGatewayDisconnect {
     console.log(payload, 'SOCKET CLIENT');
 
     client.emit('test', 'respuesta del backend');
+  }
+
+  @SubscribeMessage('mesa')
+  handleTableTaken(client: Socket, payload: Mesa) {
+    console.log(payload, 'SOCKET CLIENT MESA');
+    this.server.emit('mesa', payload);
   }
 }

@@ -15,6 +15,8 @@ import { UpdateMesaDto } from './dto/update-mesa.dto';
 import { PaginationDto } from 'src/common/dtos/pagination.dto';
 import { ActualizarEstadoMesaDto } from './dto/actualizar-estado-mesa.dto';
 import { AuthGuard } from 'src/guards/auth.guard';
+import { Socket } from 'socket.io';
+import { ConnectedSocket } from '@nestjs/websockets';
 
 @UseGuards(AuthGuard)
 @Controller('mesas')
@@ -36,8 +38,11 @@ export class MesasController {
   }
 
   @Patch('estado')
-  actualizarEstadoMesa(@Body() actualizarMesaDto: ActualizarEstadoMesaDto) {
-    return this.mesasService.actualizarEstadoMesa(actualizarMesaDto);
+  actualizarEstadoMesa(
+    @ConnectedSocket() socket: Socket,
+    @Body() actualizarMesaDto: ActualizarEstadoMesaDto,
+  ) {
+    return this.mesasService.actualizarEstadoMesa(socket, actualizarMesaDto);
   }
   @Get(':id')
   findOne(@Param('id') id: string) {
