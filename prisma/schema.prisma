@@ -122,6 +122,7 @@ model PedidoPorOrden {
 
   cantidad Int
   precio Float 
+  comentarios String?
 
   producto Producto @relation(fields: [producto_id],references: [id])
   producto_id String

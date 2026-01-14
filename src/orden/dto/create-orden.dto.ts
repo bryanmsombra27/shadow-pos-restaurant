@@ -4,6 +4,7 @@ import {
   IsArray,
   IsNotEmpty,
   IsNumber,
+  IsOptional,
   IsString,
   Min,
 } from 'class-validator';
@@ -36,4 +37,8 @@ class PedidoPorOrden {
   @IsNotEmpty()
   @IsString()
   producto_id: string;
+
+  @IsString()
+  @IsOptional()
+  comentarios?: string;
 }

@@ -23,10 +23,11 @@ export class CreateProductoDto {
   @IsString()
   categoria_id: string;
 
-  @IsNotEmpty()
+  // @IsNotEmpty()
   @IsNumber()
   @Min(0)
-  cantidad_producto: number;
+  @IsOptional()
+  cantidad_producto?: number;
   @IsNotEmpty()
   @IsNumber()
   @Min(0)

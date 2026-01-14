@@ -29,7 +29,8 @@ export class ProductoService {
       cantidad_producto,
       precio,
     } = createProductoDto;
-    const producto = await this.prismaService.producto.create({
+
+    const createClause: Prisma.ProductoCreateArgs = {
       data: {
         nombre,
         precio,
@@ -37,17 +38,22 @@ export class ProductoService {
         descripcion,
         marca,
         imagen: file ? `/${file.filename}` : '/default-product.jpg',
-        inventario: {
-          create: {
-            cantidad: cantidad_producto,
-          },
-        },
       },
       include: {
         categoria: true,
         inventario: true,
       },
-    });
+    };
+
+    if (cantidad_producto) {
+      createClause.data.inventario = {
+        create: {
+          cantidad: cantidad_producto,
+        },
+      };
+    }
+
+    const producto = await this.prismaService.producto.create(createClause);
 
     if (!producto) {
       throw new BadRequestException('No fue posible crear el producto');
