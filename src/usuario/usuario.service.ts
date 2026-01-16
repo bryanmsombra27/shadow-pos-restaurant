@@ -241,4 +241,38 @@ export class UsuarioService {
       usuario: usuario,
     };
   }
+
+  async seed() {
+    const roles = [{ nombre: 'mesero' }, { nombre: 'admin' }];
+
+    const [mesero, admin] = await this.prismaService.rol.createManyAndReturn({
+      data: roles,
+      select: {
+        id: true,
+      },
+    });
+
+    const password = await this.argonService.hashPassword('123456');
+
+    const usuarios = [
+      {
+        nombre_completo: 'jhon doe',
+        nombre_usuario: 'admin',
+        telefono: '1234567891',
+        rol_id: admin.id,
+        contrasena: password,
+      },
+      {
+        nombre_completo: 'jhon miserable',
+        nombre_usuario: 'mesero',
+        telefono: '1234567891',
+        rol_id: mesero.id,
+        contrasena: password,
+      },
+    ];
+
+    await this.prismaService.usuario.createMany({
+      data: usuarios,
+    });
+  }
 }
