@@ -243,7 +243,38 @@ export class UsuarioService {
   }
 
   async seed() {
-    const roles = [{ nombre: 'mesero' }, { nombre: 'admin' }];
+    const roles = [
+      { nombre: 'mesero' },
+      { nombre: 'admin' },
+      { nombre: 'ayudante de barra' },
+      {
+        nombre: 'DJ',
+      },
+      {
+        nombre: 'encargado de barra',
+      },
+      {
+        nombre: 'ayudante de cocina',
+      },
+      {
+        nombre: 'musicos',
+      },
+      {
+        nombre: 'ballet parking',
+      },
+      {
+        nombre: 'caja',
+      },
+      {
+        nombre: 'cocinero jefe',
+      },
+      {
+        nombre: 'guardaespaldas',
+      },
+      {
+        nombre: 'gerente',
+      },
+    ];
 
     const [mesero, admin] = await this.prismaService.rol.createManyAndReturn({
       data: roles,
