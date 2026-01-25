@@ -12,6 +12,7 @@ import {
   RespuestaObtenerProductos,
 } from 'src/interfaces/producto.interface';
 import { Prisma, Producto } from 'generated/prisma';
+import { PaginationProductoDto } from './dto/pagination-produco.dto';
 
 @Injectable()
 export class ProductoService {
@@ -66,7 +67,7 @@ export class ProductoService {
   }
 
   async findAll(
-    paginationDto: PaginationDto,
+    paginationDto: PaginationProductoDto,
   ): Promise<RespuestaObtenerProductos> {
     const page = paginationDto.page ?? 1;
     const limit = paginationDto.limit ?? 10;
@@ -98,7 +99,8 @@ export class ProductoService {
       ],
     };
 
-    if (paginationDto.search) {
+    if (paginationDto.category) {
+      whereClause.categoria_id = paginationDto.category;
     }
 
     const productos = await this.prismaService.producto.findMany({

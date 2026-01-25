@@ -19,6 +19,7 @@ import { diskStorage } from 'multer';
 import { extname } from 'path';
 import { PaginationDto } from 'src/common/dtos/pagination.dto';
 import { AuthGuard } from 'src/guards/auth.guard';
+import { PaginationProductoDto } from './dto/pagination-produco.dto';
 
 @UseGuards(AuthGuard)
 @Controller('producto')
@@ -47,7 +48,7 @@ export class ProductoController {
   }
 
   @Get()
-  findAll(@Query() paginationDto: PaginationDto) {
+  findAll(@Query() paginationDto: PaginationProductoDto) {
     return this.productoService.findAll(paginationDto);
   }
   @Get('all')
