@@ -3,7 +3,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { CreateOrdenDto } from './dto/create-orden.dto';
+import { CreateOrdenDto, PedidoPorOrdenDto } from './dto/create-orden.dto';
 import { UpdateOrdenDto } from './dto/update-orden.dto';
 import { PrismaService } from 'src/services/prisma/prisma.service';
 import {
@@ -40,9 +40,7 @@ export class OrdenService {
       const stockProducto = productosInStock.find(
         (item) => item.id == producto.producto_id,
       );
-      const stockReal =
-        (stockProducto?.inventario?.cantidad ?? 0) -
-        (stockProducto?.inventario?.en_venta ?? 0);
+      const stockReal = stockProducto?.inventario?.cantidad ?? 0;
 
       if (stockReal < producto.cantidad) {
         throw new BadRequestException(
@@ -51,8 +49,8 @@ export class OrdenService {
       }
       const actualizarProducto = this.prismaService.inventario.update({
         data: {
-          en_venta: {
-            increment: producto.cantidad,
+          cantidad: {
+            decrement: producto.cantidad,
           },
         },
         where: {
@@ -254,31 +252,103 @@ export class OrdenService {
         id: id,
       },
     });
-    const productosActualizados: any = [];
+    // const productosActualizados: any = [];
 
-    for (const pedido of orden.pedidos) {
-      const producto = this.prismaService.inventario.update({
-        data: {
-          cantidad: {
-            decrement: pedido.cantidad,
-          },
-          en_venta: {
-            decrement: pedido.cantidad,
-          },
-        },
-        where: {
-          producto_id: pedido.producto_id,
-        },
-      });
+    // for (const pedido of orden.pedidos) {
+    //   const producto = this.prismaService.inventario.update({
+    //     data: {
+    //       cantidad: {
+    //         decrement: pedido.cantidad,
+    //       },
+    //     },
+    //     where: {
+    //       producto_id: pedido.producto_id,
+    //     },
+    //   });
 
-      productosActualizados.push(producto);
-    }
+    //   productosActualizados.push(producto);
+    // }
 
-    await Promise.all(productosActualizados);
+    // await Promise.all(productosActualizados);
 
     return {
       mensaje: 'El estado de la orden se actualizo con exito!',
       orden: actualizar_estado_orden,
+    };
+  }
+
+  async ordenPreparada(id: string, productos: PedidoPorOrdenDto[]) {
+    const orden = await this.findOne(id);
+
+    const ordenActualizada = await this.prismaService.orden.update({
+      data: {
+        estado_orden: 'PREPARADA',
+        // pedidos:{
+        //   update:{
+        //     data:{
+        //       preparado:true
+        //     },
+        //     where:{
+
+        //     }
+        //   }
+        // }
+      },
+      where: {
+        id: id,
+      },
+    });
+
+    return {
+      message: 'Orden prearada con exito!',
+    };
+  }
+
+  async ordenesParaBarra() {
+    const ordenes = await this.prismaService.orden.findMany({
+      where: {
+        estado_orden: 'PENDIENTE',
+        pedidos: {
+          some: {
+            para_barra: true,
+          },
+        },
+      },
+      include: {
+        mesa: {
+          select: {
+            nombre: true,
+            es_vip: true,
+          },
+        },
+        mesero: {
+          select: {
+            nombre_usuario: true,
+          },
+        },
+        pedidos: {
+          select: {
+            cantidad: true,
+            comentarios: true,
+            preparado: true,
+            para_barra: true,
+            producto: {
+              select: {
+                nombre: true,
+              },
+            },
+          },
+
+          where: {
+            para_barra: true,
+          },
+        },
+      },
+    });
+
+    return {
+      mensaje: 'Ordenes Pendientes',
+      ordenes,
     };
   }
 }

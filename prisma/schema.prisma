@@ -30,6 +30,7 @@ enum EstadoOrden {
   PAGADA
   PENDIENTE
   CANCELADA
+  PREPARADA
 }
 
 
@@ -101,7 +102,6 @@ model Inventario {
     producto Producto @relation(fields: [producto_id], references: [id]) 
     producto_id String @unique
     cantidad Int
-    en_venta Int?
 
 }
 
@@ -130,8 +130,11 @@ model PedidoPorOrden {
   orden Orden @relation(fields: [orden_id],references: [id],onDelete: Cascade)
   orden_id String
 
-  @@unique([producto_id,orden_id],name: "producto_orden")
+  para_barra Boolean @default(false)
+  preparado Boolean @default(false)
 
+
+  @@unique([producto_id,orden_id],name: "producto_orden")
 }
 
 model Orden {
@@ -147,6 +150,4 @@ model Orden {
   total Float? 
 
   pedidos PedidoPorOrden[] 
-
-
 }

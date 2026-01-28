@@ -2,6 +2,7 @@ import { Type } from 'class-transformer';
 import {
   ArrayNotEmpty,
   IsArray,
+  IsBoolean,
   IsNotEmpty,
   IsNumber,
   IsOptional,
@@ -19,11 +20,11 @@ export class CreateOrdenDto {
   mesero_id: string;
 
   @ArrayNotEmpty()
-  @Type(() => PedidoPorOrden)
-  productos: PedidoPorOrden[];
+  @Type(() => PedidoPorOrdenDto)
+  productos: PedidoPorOrdenDto[];
 }
 
-class PedidoPorOrden {
+export class PedidoPorOrdenDto {
   @IsNotEmpty()
   @IsNumber()
   @Min(1)
@@ -41,4 +42,8 @@ class PedidoPorOrden {
   @IsString()
   @IsOptional()
   comentarios?: string;
+
+  @IsBoolean()
+  @IsOptional()
+  para_barra?: boolean;
 }

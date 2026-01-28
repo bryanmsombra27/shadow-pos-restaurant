@@ -26,6 +26,11 @@ export class UsuarioController {
   findAll(@Query() paginationDto: PaginationDto) {
     return this.usuarioService.findAll(paginationDto);
   }
+  @Get('seed')
+  seed() {
+    return this.usuarioService.seed();
+  }
+
   @Get('meseros')
   findAllMeseros() {
     return this.usuarioService.todosMeseros();
@@ -44,10 +49,5 @@ export class UsuarioController {
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.usuarioService.remove(id);
-  }
-
-  @Get('seed')
-  seed() {
-    return this.usuarioService.seed();
   }
 }

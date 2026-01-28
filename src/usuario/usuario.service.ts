@@ -243,6 +243,39 @@ export class UsuarioService {
   }
 
   async seed() {
+    const tables = [
+      {
+        nombre: 'Mesa 1',
+      },
+      {
+        nombre: 'Mesa 2',
+      },
+      {
+        nombre: 'Mesa 3',
+      },
+      {
+        nombre: 'Mesa 4',
+      },
+      {
+        nombre: 'Mesa 5',
+      },
+      {
+        nombre: 'Mesa 6',
+      },
+      {
+        nombre: 'Mesa 7',
+      },
+      {
+        nombre: 'Mesa 8',
+      },
+      {
+        nombre: 'Mesa 9',
+      },
+      {
+        nombre: 'Mesa 10',
+      },
+    ];
+
     const roles = [
       { nombre: 'mesero' },
       { nombre: 'admin' },
@@ -304,6 +337,10 @@ export class UsuarioService {
 
     await this.prismaService.usuario.createMany({
       data: usuarios,
+    });
+
+    await this.prismaService.mesa.createMany({
+      data: tables,
     });
   }
 }

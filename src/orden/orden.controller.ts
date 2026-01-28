@@ -38,6 +38,15 @@ export class OrdenController {
   completarOrden(@Param('id') id: string) {
     return this.ordenService.completarOrden(id);
   }
+  @Patch('preparada/:id')
+  ordenPreparada(@Param('id') id: string) {
+    return this.ordenService.ordenPreparada(id, []);
+  }
+
+  @Get('barra')
+  findAllOrdersForBar() {
+    return this.ordenService.ordenesParaBarra();
+  }
 
   @Get(':id')
   findOne(@Param('id') id: string) {
