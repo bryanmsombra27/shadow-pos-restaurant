@@ -297,10 +297,41 @@ export class OrdenService {
       where: {
         id: id,
       },
+      include: {
+        mesa: {
+          select: {
+            nombre: true,
+            es_vip: true,
+          },
+        },
+        mesero: {
+          select: {
+            nombre_usuario: true,
+          },
+        },
+        pedidos: {
+          select: {
+            cantidad: true,
+            comentarios: true,
+            preparado: true,
+            para_barra: true,
+            producto: {
+              select: {
+                nombre: true,
+              },
+            },
+          },
+
+          where: {
+            para_barra: true,
+          },
+        },
+      },
     });
 
     return {
-      message: 'Orden prearada con exito!',
+      mensaje: 'Orden prearada con exito!',
+      orden: ordenActualizada,
     };
   }
 

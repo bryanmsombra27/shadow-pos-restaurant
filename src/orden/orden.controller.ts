@@ -34,13 +34,14 @@ export class OrdenController {
   ordenPorMesa(@Param('id') id: string) {
     return this.ordenService.obtenerOrdenPorMesa(id);
   }
-  @Patch('completado/:id')
-  completarOrden(@Param('id') id: string) {
-    return this.ordenService.completarOrden(id);
-  }
   @Patch('preparada/:id')
   ordenPreparada(@Param('id') id: string) {
     return this.ordenService.ordenPreparada(id, []);
+  }
+
+  @Patch('completado/:id')
+  completarOrden(@Param('id') id: string) {
+    return this.ordenService.completarOrden(id);
   }
 
   @Get('barra')
