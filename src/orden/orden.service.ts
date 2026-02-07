@@ -7,6 +7,7 @@ import { CreateOrdenDto, PedidoPorOrdenDto } from './dto/create-orden.dto';
 import { UpdateOrdenDto } from './dto/update-orden.dto';
 import { PrismaService } from 'src/services/prisma/prisma.service';
 import {
+  OrdenBarra,
   RespuestaObtenerOrdenes,
   RespuestaOrden,
 } from 'src/interfaces/orden.interface';
@@ -277,61 +278,132 @@ export class OrdenService {
     };
   }
 
-  async ordenPreparada(id: string, productos: PedidoPorOrdenDto[]) {
-    const orden = await this.findOne(id);
-
-    const ordenActualizada = await this.prismaService.orden.update({
-      data: {
-        estado_orden: 'PREPARADA',
-        // pedidos:{
-        //   update:{
-        //     data:{
-        //       preparado:true
-        //     },
-        //     where:{
-
-        //     }
-        //   }
-        // }
-      },
+  async ordenPreparada(id: string) {
+    const orden = await this.prismaService.orden.findUnique({
       where: {
         id: id,
       },
       include: {
-        mesa: {
-          select: {
-            nombre: true,
-            es_vip: true,
-          },
-        },
-        mesero: {
-          select: {
-            nombre_usuario: true,
-          },
-        },
         pedidos: {
           select: {
-            cantidad: true,
-            comentarios: true,
+            para_barra: true,
             preparado: true,
-            para_barra: true,
-            producto: {
-              select: {
-                nombre: true,
-              },
-            },
-          },
-
-          where: {
-            para_barra: true,
+            id: true,
           },
         },
       },
     });
+    let ordenBarra: OrdenBarra;
+
+    const wasOnlyForBarra = orden?.pedidos.some(
+      (pedido) => pedido.para_barra == true,
+    );
+    if (wasOnlyForBarra) {
+      ordenBarra = await this.prismaService.orden.update({
+        data: {
+          estado_orden: 'PREPARADA',
+          pedidos: {
+            updateMany: {
+              data: {
+                preparado: true,
+              },
+              where: {
+                orden_id: id,
+              },
+            },
+          },
+        },
+        where: {
+          id,
+        },
+        include: {
+          mesa: {
+            select: {
+              nombre: true,
+              es_vip: true,
+            },
+          },
+          mesero: {
+            select: {
+              nombre_usuario: true,
+            },
+          },
+          pedidos: {
+            select: {
+              cantidad: true,
+              comentarios: true,
+              preparado: true,
+              para_barra: true,
+              producto: {
+                select: {
+                  id: true,
+                  nombre: true,
+                },
+              },
+            },
+
+            where: {
+              para_barra: true,
+            },
+          },
+        },
+      });
+    } else {
+      ordenBarra = await this.prismaService.orden.update({
+        data: {
+          pedidos: {
+            updateMany: {
+              data: {
+                preparado: true,
+              },
+              where: {
+                orden_id: id,
+                para_barra: true,
+              },
+            },
+          },
+        },
+        where: {
+          id: id,
+        },
+
+        include: {
+          mesa: {
+            select: {
+              nombre: true,
+              es_vip: true,
+            },
+          },
+          mesero: {
+            select: {
+              nombre_usuario: true,
+            },
+          },
+          pedidos: {
+            select: {
+              cantidad: true,
+              comentarios: true,
+              preparado: true,
+              para_barra: true,
+              producto: {
+                select: {
+                  id: true,
+                  nombre: true,
+                },
+              },
+            },
+
+            where: {
+              para_barra: true,
+            },
+          },
+        },
+      });
+    }
 
     return {
       mensaje: 'Orden prearada con exito!',
-      orden: ordenActualizada,
+      orden: ordenBarra,
     };
   }
 
@@ -339,11 +411,16 @@ export class OrdenService {
     const ordenes = await this.prismaService.orden.findMany({
       where: {
         estado_orden: 'PENDIENTE',
-        pedidos: {
-          some: {
-            para_barra: true,
+        AND: [
+          {
+            pedidos: {
+              some: {
+                para_barra: true,
+                preparado: false,
+              },
+            },
           },
-        },
+        ],
       },
       include: {
         mesa: {
@@ -365,6 +442,7 @@ export class OrdenService {
             para_barra: true,
             producto: {
               select: {
+                id: true,
                 nombre: true,
               },
             },
@@ -380,6 +458,30 @@ export class OrdenService {
     return {
       mensaje: 'Ordenes Pendientes',
       ordenes,
+    };
+  }
+  async completarUnPedido(id: string) {
+    const pedido = await this.prismaService.pedidoPorOrden.findUnique({
+      where: {
+        id,
+      },
+    });
+    if (!pedido) {
+      throw new NotFoundException('No se encontro el pedido');
+    }
+
+    const updatePedido = await this.prismaService.pedidoPorOrden.update({
+      data: {
+        preparado: true,
+      },
+      where: {
+        id,
+      },
+    });
+
+    return {
+      mensaje: 'Pedido preparado con exito!',
+      pedido: updatePedido,
     };
   }
 }

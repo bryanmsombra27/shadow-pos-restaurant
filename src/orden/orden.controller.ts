@@ -36,7 +36,11 @@ export class OrdenController {
   }
   @Patch('preparada/:id')
   ordenPreparada(@Param('id') id: string) {
-    return this.ordenService.ordenPreparada(id, []);
+    return this.ordenService.ordenPreparada(id);
+  }
+  @Patch('completar-un-pedido/:id')
+  completarUnPedidoDeOrden(@Param('id') id: string) {
+    return this.ordenService.completarUnPedido(id);
   }
 
   @Patch('completado/:id')
