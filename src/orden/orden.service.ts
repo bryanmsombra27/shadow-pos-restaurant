@@ -436,6 +436,7 @@ export class OrdenService {
         },
         pedidos: {
           select: {
+            id: true,
             cantidad: true,
             comentarios: true,
             preparado: true,
