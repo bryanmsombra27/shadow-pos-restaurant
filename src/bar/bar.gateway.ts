@@ -8,7 +8,12 @@ import {
   WebSocketGateway,
   WebSocketServer,
 } from '@nestjs/websockets';
-import { type Orden, type Mesa } from 'generated/prisma';
+import {
+  type Orden,
+  type Mesa,
+  PedidoPorOrden,
+  type Notificaciones,
+} from 'generated/prisma';
 import { Socket, Server } from 'socket.io';
 
 @WebSocketGateway({
@@ -44,8 +49,8 @@ export class BarGateway implements OnGatewayConnection, OnGatewayDisconnect {
     this.server.emit('mesa', payload);
   }
 
-  @SubscribeMessage('orden_preparada')
-  handleOrderByBar(client: Socket, payload: Orden) {
-    this.server.emit('orden_preparada', payload);
+  @SubscribeMessage('notificaciones')
+  handleOrderReady(client: Socket, payload: Notificaciones) {
+    client.emit('notificaciones', payload);
   }
 }

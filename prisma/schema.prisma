@@ -57,6 +57,7 @@ model Usuario {
 
   mesa Mesa[]
   ordenes Orden[]
+  notificaciones Notificaciones[]
 
 } 
 
@@ -150,4 +151,16 @@ model Orden {
   total Float? 
 
   pedidos PedidoPorOrden[] 
+}
+
+model Notificaciones {
+  id  String  @id  @default(uuid()) 
+  titulo String
+  descripcion String
+  link String?
+  fue_revisada Boolean @default(false)
+  esta_activa Boolean @default(true)
+
+  usuario_id String
+  usuario Usuario @relation( fields: [usuario_id], references: [id])
 }

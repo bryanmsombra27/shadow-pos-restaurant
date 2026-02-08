@@ -13,10 +13,15 @@ import {
 } from 'src/interfaces/orden.interface';
 import { PaginationDto } from 'src/common/dtos/pagination.dto';
 import { Orden } from 'generated/prisma';
+import { BarGateway } from 'src/bar/bar.gateway';
+import { Socket } from 'socket.io';
 
 @Injectable()
 export class OrdenService {
-  constructor(private readonly prismaService: PrismaService) {}
+  constructor(
+    private readonly prismaService: PrismaService,
+    private readonly barGateway: BarGateway,
+  ) {}
 
   async create(createOrdenDto: CreateOrdenDto): Promise<RespuestaOrden> {
     const { productos, mesa_id, mesero_id } = createOrdenDto;
@@ -61,6 +66,15 @@ export class OrdenService {
 
       productosComprometidos.push(actualizarProducto);
     }
+    // const ordenExistente = await this.prismaService.orden.findFirst({
+    //   where: {
+    //     mesa_id,
+    //     mesero_id,
+    //     estado_orden: {
+    //       in: ['PENDIENTE', 'PREPARADA'],
+    //     },
+    //   },
+    // });
 
     const orden = await this.prismaService.orden.create({
       data: {
@@ -74,6 +88,7 @@ export class OrdenService {
         },
       },
     });
+
     const ventas_actualizadas = await Promise.all(productosComprometidos);
 
     if (!orden) {
@@ -278,7 +293,7 @@ export class OrdenService {
     };
   }
 
-  async ordenPreparada(id: string) {
+  async ordenPreparada(socket: Socket, id: string) {
     const orden = await this.prismaService.orden.findUnique({
       where: {
         id: id,
@@ -286,9 +301,23 @@ export class OrdenService {
       include: {
         pedidos: {
           select: {
+            producto: {
+              select: {
+                id: true,
+                nombre: true,
+              },
+            },
+            cantidad: true,
+            comentarios: true,
             para_barra: true,
             preparado: true,
             id: true,
+          },
+        },
+        mesa: {
+          select: {
+            id: true,
+            nombre: true,
           },
         },
       },
@@ -400,6 +429,17 @@ export class OrdenService {
         },
       });
     }
+
+    // const notification = await this.prismaService.notificaciones.create({
+    //   data: {
+    //     titulo: `Orden Preparada (Barra)`,
+    //     descripcion: `La orden de ${ordenBarra.mesa.nombre} ya esta lista, recoge en barra`,
+    //     usuario_id: orden?.mesero_id!,
+    //     link: `/orden/${orden?.id}`,
+    //   },
+    // });
+
+    // this.barGateway.handleOrderReady(socket, notification);
 
     return {
       mensaje: 'Orden prearada con exito!',
