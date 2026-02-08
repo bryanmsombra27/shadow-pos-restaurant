@@ -39,7 +39,8 @@ export class OrdenService {
       },
     });
     const productosComprometidos: any = [];
-
+    let orden: Orden;
+    let mensaje: string = '';
     // Promise.all()
 
     for (const producto of productos) {
@@ -66,37 +67,64 @@ export class OrdenService {
 
       productosComprometidos.push(actualizarProducto);
     }
-    // const ordenExistente = await this.prismaService.orden.findFirst({
-    //   where: {
-    //     mesa_id,
-    //     mesero_id,
-    //     estado_orden: {
-    //       in: ['PENDIENTE', 'PREPARADA'],
-    //     },
-    //   },
-    // });
-
-    const orden = await this.prismaService.orden.create({
-      data: {
+    const ordenExistente = await this.prismaService.orden.findFirst({
+      where: {
         mesa_id,
         mesero_id,
-
-        pedidos: {
-          createMany: {
-            data: productos,
-          },
+        estado_orden: {
+          in: ['PENDIENTE', 'PREPARADA'],
         },
       },
     });
+    if (ordenExistente) {
+      const pedidos = productos.map((producto) => ({
+        ...producto,
+        orden_id: ordenExistente.id,
+      }));
 
-    const ventas_actualizadas = await Promise.all(productosComprometidos);
+      await this.prismaService.pedidoPorOrden.createMany({
+        data: pedidos,
+      });
+      orden = await this.prismaService.orden.update({
+        data: {
+          estado_orden: 'PENDIENTE',
+        },
 
+        where: {
+          id: ordenExistente.id,
+          mesa_id,
+          mesero_id,
+          estado_orden: {
+            in: ['PENDIENTE', 'PREPARADA'],
+          },
+        },
+      });
+
+      mensaje = 'productos agregadosa a la orden con exito!';
+    } else {
+      orden = await this.prismaService.orden.create({
+        data: {
+          mesa_id,
+          mesero_id,
+
+          pedidos: {
+            createMany: {
+              data: productos,
+            },
+          },
+        },
+      });
+
+      mensaje = 'Orden creada con exito!';
+    }
     if (!orden) {
       throw new BadRequestException('No fue posible crear la orden');
     }
 
+    const ventas_actualizadas = await Promise.all(productosComprometidos);
+
     return {
-      mensaje: 'Orden creada con exito!',
+      mensaje,
       orden,
     };
   }
@@ -162,24 +190,23 @@ export class OrdenService {
 
     const { mesa_id, mesero_id, productos } = updateOrdenDto;
 
-    const orden_actualizada = await this.prismaService.orden.update({
-      data: {
-        mesero_id: mesero_id ?? orden.mesero_id,
-        mesa_id: mesa_id ?? orden.mesa_id,
-      },
-      where: {
-        id,
-      },
-    });
+    const orden_actualizada =
+      await this.prismaService.orden.updateManyAndReturn({
+        data: {
+          mesero_id: mesero_id ?? orden.mesero_id,
+          mesa_id: mesa_id ?? orden.mesa_id,
+        },
+        where: {
+          id,
+        },
+      });
     if (productos!.length > 0) {
       await this.prismaService.$transaction(
         productos!.map((p) =>
-          this.prismaService.pedidoPorOrden.update({
+          this.prismaService.pedidoPorOrden.updateMany({
             where: {
-              producto_orden: {
-                orden_id: orden.id,
-                producto_id: p.producto_id,
-              },
+              producto_id: p.producto_id,
+              orden_id: id,
             }, // identificador único del pedido
             data: {
               cantidad: p.cantidad,
@@ -191,7 +218,7 @@ export class OrdenService {
 
     return {
       mensaje: 'Orden actualizada con exito',
-      orden: orden_actualizada,
+      orden: orden_actualizada[0],
     };
   }
 

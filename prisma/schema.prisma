@@ -135,7 +135,6 @@ model PedidoPorOrden {
   preparado Boolean @default(false)
 
 
-  @@unique([producto_id,orden_id],name: "producto_orden")
 }
 
 model Orden {

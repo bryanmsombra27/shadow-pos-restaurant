@@ -60,6 +60,7 @@ export class OrdenController {
     return this.ordenService.findOne(id);
   }
 
+  // POSIBLEMENTE DEBA REMOVER EL INDEX QUE CREE PARA EL METODO UPDATE
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateOrdenDto: UpdateOrdenDto) {
     return this.ordenService.update(id, updateOrdenDto);
