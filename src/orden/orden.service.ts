@@ -351,7 +351,7 @@ export class OrdenService {
     });
     let ordenBarra: OrdenBarra;
 
-    const wasOnlyForBarra = orden?.pedidos.some(
+    const wasOnlyForBarra = orden?.pedidos.every(
       (pedido) => pedido.para_barra == true,
     );
     if (wasOnlyForBarra) {
@@ -518,6 +518,7 @@ export class OrdenService {
 
           where: {
             para_barra: true,
+            preparado: false,
           },
         },
       },
