@@ -271,6 +271,33 @@ export class OrdenService {
       orden,
     };
   }
+  async obtenerOrdenesPorMesero(id: string) {
+    const ordenes = await this.prismaService.orden.findMany({
+      where: {
+        mesero_id: id,
+        estado_orden: 'PREPARADA',
+      },
+      include: {
+        pedidos: {
+          select: {
+            preparado: true,
+            cantidad: true,
+            producto: {
+              select: {
+                id: true,
+                nombre: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    return {
+      mensaje: 'Ordenes encontradas',
+      ordenes,
+    };
+  }
 
   async completarOrden(id: string) {
     const orden = await this.findOne(id);

@@ -31,6 +31,7 @@ enum EstadoOrden {
   PENDIENTE
   CANCELADA
   PREPARADA
+  ENTREGADA
 }
 
 

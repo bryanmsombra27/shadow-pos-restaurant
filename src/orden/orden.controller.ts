@@ -36,6 +36,15 @@ export class OrdenController {
   ordenPorMesa(@Param('id') id: string) {
     return this.ordenService.obtenerOrdenPorMesa(id);
   }
+  @Get('mesero/:id')
+  ordenesPorMesero(
+    @Param('id') id: string,
+    // @Query() paginationDto: PaginationDto,
+  ) {
+    // return this.ordenService.obtenerOrdenesPorMesero(id, paginationDto);
+    return this.ordenService.obtenerOrdenesPorMesero(id);
+  }
+
   @Patch('preparada/:id')
   ordenPreparada(@ConnectedSocket() socket: Socket, @Param('id') id: string) {
     return this.ordenService.ordenPreparada(socket, id);
