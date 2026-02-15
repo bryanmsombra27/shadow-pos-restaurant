@@ -251,6 +251,7 @@ export class OrdenService {
         },
         pedidos: {
           select: {
+            id: true,
             cantidad: true,
             precio: true,
             producto: {
@@ -286,6 +287,7 @@ export class OrdenService {
         },
         pedidos: {
           select: {
+            id: true,
             preparado: true,
             cantidad: true,
             entregado_a_mesa: true,
@@ -503,8 +505,67 @@ export class OrdenService {
     // this.barGateway.handleOrderReady(socket, notification);
 
     return {
-      mensaje: 'Orden prearada con exito!',
+      mensaje: 'Orden preparada con exito!',
       orden: ordenBarra,
+    };
+  }
+  async ordenEntregada(id: string) {
+    const orden = await this.prismaService.orden.findUnique({
+      where: {
+        id: id,
+      },
+    });
+
+    if (!orden) {
+      throw new NotFoundException('La orden no se encontro');
+    }
+
+    const updateOrder = await this.prismaService.orden.update({
+      data: {
+        estado_orden: 'ENTREGADA',
+        pedidos: {
+          updateMany: {
+            data: {
+              entregado_a_mesa: true,
+            },
+            where: {
+              orden_id: orden.id,
+            },
+          },
+        },
+      },
+      where: {
+        id: orden.id,
+      },
+      include: {
+        pedidos: {
+          select: {
+            producto: {
+              select: {
+                id: true,
+                nombre: true,
+              },
+            },
+            cantidad: true,
+            comentarios: true,
+            para_barra: true,
+            preparado: true,
+            entregado_a_mesa: true,
+            id: true,
+          },
+        },
+        mesa: {
+          select: {
+            id: true,
+            nombre: true,
+          },
+        },
+      },
+    });
+
+    return {
+      mensaje: 'Orden entregada con exito !',
+      orden: updateOrder,
     };
   }
 
@@ -579,6 +640,42 @@ export class OrdenService {
       },
       where: {
         id,
+      },
+    });
+
+    return {
+      mensaje: 'Pedido preparado con exito!',
+      pedido: updatePedido,
+    };
+  }
+  async entregarUnPedidoMesa(id: string) {
+    const pedido = await this.prismaService.pedidoPorOrden.findUnique({
+      where: {
+        id,
+      },
+    });
+    if (!pedido) {
+      throw new NotFoundException('No se encontro el pedido');
+    }
+    const updatePedido = await this.prismaService.pedidoPorOrden.update({
+      data: {
+        entregado_a_mesa: true,
+      },
+      where: {
+        id,
+      },
+      select: {
+        orden_id: true,
+        cantidad: true,
+        precio: true,
+        producto: {
+          select: {
+            id: true,
+            nombre: true,
+          },
+        },
+        preparado: true,
+        entregado_a_mesa: true,
       },
     });
 
