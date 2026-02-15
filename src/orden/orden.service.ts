@@ -278,10 +278,17 @@ export class OrdenService {
         estado_orden: 'PREPARADA',
       },
       include: {
+        mesa: {
+          select: {
+            nombre: true,
+            id: true,
+          },
+        },
         pedidos: {
           select: {
             preparado: true,
             cantidad: true,
+            entregado_a_mesa: true,
             producto: {
               select: {
                 id: true,

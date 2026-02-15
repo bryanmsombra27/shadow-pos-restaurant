@@ -134,6 +134,7 @@ model PedidoPorOrden {
 
   para_barra Boolean @default(false)
   preparado Boolean @default(false)
+  entregado_a_mesa Boolean @default(false)
 
 
 }
