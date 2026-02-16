@@ -17,6 +17,7 @@ import { OrdenModule } from './orden/orden.module';
 import { BarGateway } from './bar/bar.gateway';
 import { CacheModule } from '@nestjs/cache-manager';
 import { CacheService } from './common/services/cache/cache.service';
+import { NotificacionesModule } from './notificaciones/notificaciones.module';
 
 @Module({
   imports: [
@@ -48,6 +49,8 @@ import { CacheService } from './common/services/cache/cache.service';
     ProductoModule,
 
     OrdenModule,
+
+    NotificacionesModule,
   ],
   controllers: [AppController],
   providers: [

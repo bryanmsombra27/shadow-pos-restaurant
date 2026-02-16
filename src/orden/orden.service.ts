@@ -493,16 +493,16 @@ export class OrdenService {
       });
     }
 
-    // const notification = await this.prismaService.notificaciones.create({
-    //   data: {
-    //     titulo: `Orden Preparada (Barra)`,
-    //     descripcion: `La orden de ${ordenBarra.mesa.nombre} ya esta lista, recoge en barra`,
-    //     usuario_id: orden?.mesero_id!,
-    //     link: `/orden/${orden?.id}`,
-    //   },
-    // });
+    const notification = await this.prismaService.notificaciones.create({
+      data: {
+        titulo: `Orden Preparada (Barra)`,
+        descripcion: `La orden de ${ordenBarra.mesa.nombre} ya esta lista, recoge en barra`,
+        usuario_id: orden?.mesero_id!,
+        link: `/mis-ordenes`,
+      },
+    });
 
-    // this.barGateway.handleOrderReady(socket, notification);
+    this.barGateway.handleOrderReady(socket, notification);
 
     return {
       mensaje: 'Orden preparada con exito!',
