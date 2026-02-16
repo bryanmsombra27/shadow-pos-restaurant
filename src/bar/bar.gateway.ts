@@ -45,21 +45,17 @@ export class BarGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   @SubscribeMessage('mesa')
   handleTableTaken(client: Socket, payload: Mesa) {
-    console.log(payload, 'SOCKET CLIENT MESA');
     this.server.emit('mesa', payload);
   }
 
   @SubscribeMessage('notificaciones')
   handleOrderReady(payload: Notificaciones) {
-    console.log(payload, 'SOCKET CLIENT NOTIFICACION');
     const room = payload.usuario_id;
     // client.emit('notificaciones', payload);
     this.server.to(room).emit('notificaciones', payload);
   }
   @SubscribeMessage('room')
   handleRoom(client: Socket, payload: { user: string }) {
-    console.log(client.id, 'CLIENTE SOCKET DE NOTIFICACIONES');
-    console.log(payload, 'SOCKET CLIENT NOTIFICACION');
     const room = payload.user;
     // client.emit('notificaciones', payload);
     this.server.socketsJoin(room);
