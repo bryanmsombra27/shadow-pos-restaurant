@@ -15,6 +15,7 @@ import { PaginationDto } from 'src/common/dtos/pagination.dto';
 import { Orden } from 'generated/prisma';
 import { BarGateway } from 'src/bar/bar.gateway';
 import { Socket } from 'socket.io';
+import { ConnectedSocket } from '@nestjs/websockets';
 
 @Injectable()
 export class OrdenService {
@@ -356,7 +357,7 @@ export class OrdenService {
     };
   }
 
-  async ordenPreparada(socket: Socket, id: string) {
+  async ordenPreparada(id: string) {
     const orden = await this.prismaService.orden.findUnique({
       where: {
         id: id,
@@ -502,7 +503,7 @@ export class OrdenService {
       },
     });
 
-    this.barGateway.handleOrderReady(socket, notification);
+    this.barGateway.handleOrderReady(notification);
 
     return {
       mensaje: 'Orden preparada con exito!',

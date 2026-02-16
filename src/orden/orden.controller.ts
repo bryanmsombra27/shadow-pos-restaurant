@@ -46,8 +46,8 @@ export class OrdenController {
   }
 
   @Patch('preparada/:id')
-  ordenPreparada(@ConnectedSocket() socket: Socket, @Param('id') id: string) {
-    return this.ordenService.ordenPreparada(socket, id);
+  ordenPreparada(@Param('id') id: string) {
+    return this.ordenService.ordenPreparada(id);
   }
   @Patch('entregada/:id')
   ordenEntregada(@Param('id') id: string) {

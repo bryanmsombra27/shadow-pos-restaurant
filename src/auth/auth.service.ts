@@ -34,7 +34,7 @@ export class AuthService {
   verifyToken(token: string) {
     try {
       const decodeToken = this.jwtService.verify(token);
-      console.log(decodeToken, 'decode token');
+      // console.log(decodeToken, 'decode token');
 
       return decodeToken;
     } catch (error) {
@@ -75,10 +75,10 @@ export class AuthService {
     });
     const wasCached = await this.cacheService.setToCache(token, userLogin);
     if (wasCached) {
-      console.log('USUARIO CACHEADO CON EXITO');
+      // console.log('USUARIO CACHEADO CON EXITO');
       const user = await this.cacheService.getFromCache(token);
 
-      console.log('USUARIO EN CACHE STORE', user);
+      // console.log('USUARIO EN CACHE STORE', user);
     }
 
     return {
