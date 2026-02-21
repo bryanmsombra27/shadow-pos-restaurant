@@ -150,7 +150,7 @@ model Orden {
   mesa_id String
   estado_orden EstadoOrden @default(PENDIENTE)
   total Float? 
-
+  fecha DateTime @default(now())
   pedidos PedidoPorOrden[] 
 }
 

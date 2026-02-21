@@ -14,8 +14,6 @@ import { CreateOrdenDto } from './dto/create-orden.dto';
 import { UpdateOrdenDto } from './dto/update-orden.dto';
 import { PaginationDto } from 'src/common/dtos/pagination.dto';
 import { AuthGuard } from 'src/guards/auth.guard';
-import { Socket } from 'socket.io';
-import { ConnectedSocket } from '@nestjs/websockets';
 
 @UseGuards(AuthGuard)
 @Controller('orden')
@@ -31,6 +29,10 @@ export class OrdenController {
   findAll(@Query() paginationDto: PaginationDto) {
     return this.ordenService.findAll(paginationDto);
   }
+  @Get('preparadas')
+  todasLasOrdenesPreparadas(@Query() paginationDto: PaginationDto) {
+    return this.ordenService.todasLasOrdenesPreparadas(paginationDto);
+  }
 
   @Get('mesa/:id')
   ordenPorMesa(@Param('id') id: string) {
@@ -45,10 +47,16 @@ export class OrdenController {
     return this.ordenService.obtenerOrdenesPorMesero(id);
   }
 
+  @Get('preparada/:id')
+  obtenerUnaordenPreparada(@Param('id') id: string) {
+    return this.ordenService.obtenerUnaOrden(id);
+  }
+
   @Patch('preparada/:id')
   ordenPreparada(@Param('id') id: string) {
     return this.ordenService.ordenPreparada(id);
   }
+
   @Patch('entregada/:id')
   ordenEntregada(@Param('id') id: string) {
     return this.ordenService.ordenEntregada(id);

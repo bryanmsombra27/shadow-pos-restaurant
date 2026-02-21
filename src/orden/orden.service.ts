@@ -3,7 +3,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { CreateOrdenDto, PedidoPorOrdenDto } from './dto/create-orden.dto';
+import { CreateOrdenDto } from './dto/create-orden.dto';
 import { UpdateOrdenDto } from './dto/update-orden.dto';
 import { PrismaService } from 'src/services/prisma/prisma.service';
 import {
@@ -12,10 +12,8 @@ import {
   RespuestaOrden,
 } from 'src/interfaces/orden.interface';
 import { PaginationDto } from 'src/common/dtos/pagination.dto';
-import { Orden } from 'generated/prisma';
+import { Orden, Prisma } from 'generated/prisma';
 import { BarGateway } from 'src/bar/bar.gateway';
-import { Socket } from 'socket.io';
-import { ConnectedSocket } from '@nestjs/websockets';
 
 @Injectable()
 export class OrdenService {
@@ -143,6 +141,62 @@ export class OrdenService {
       skip: offset,
     });
     const total = await this.prismaService.orden.count();
+
+    // ceil redondear hacia arriba
+    const totalPages = Math.ceil(total / limit);
+
+    return {
+      mensaje: 'Ordenes encontradas',
+      ordenes,
+      pagina: page,
+      total_paginas: totalPages,
+      total_registros: total,
+    };
+  }
+  async todasLasOrdenesPreparadas(
+    paginationDto: PaginationDto,
+  ): Promise<RespuestaObtenerOrdenes> {
+    const page = paginationDto.page ?? 1;
+    const limit = paginationDto.limit ?? 10;
+    const offset = (+page - 1) * limit;
+
+    const clause: Prisma.OrdenFindManyArgs = {
+      where: {
+        estado_orden: {
+          not: 'PAGADA',
+        },
+        pedidos: {
+          some: {
+            para_barra: true,
+            preparado: true,
+          },
+        },
+      },
+      take: limit,
+      skip: offset,
+      include: {
+        mesa: {
+          select: {
+            id: true,
+            nombre: true,
+          },
+        },
+        mesero: {
+          select: {
+            id: true,
+            nombre_usuario: true,
+          },
+        },
+      },
+      orderBy: {
+        fecha: 'desc',
+      },
+    };
+
+    const ordenes = await this.prismaService.orden.findMany(clause);
+    const total = await this.prismaService.orden.count({
+      where: clause.where,
+    });
 
     // ceil redondear hacia arriba
     const totalPages = Math.ceil(total / limit);
@@ -684,5 +738,51 @@ export class OrdenService {
       mensaje: 'Pedido preparado con exito!',
       pedido: updatePedido,
     };
+  }
+  async obtenerUnaOrden(id: string) {
+    const orden = await this.prismaService.orden.findFirst({
+      where: {
+        id,
+      },
+      include: {
+        mesa: {
+          select: {
+            id: true,
+            nombre: true,
+          },
+        },
+        mesero: {
+          select: {
+            id: true,
+            nombre_usuario: true,
+          },
+        },
+        pedidos: {
+          where: {
+            para_barra: true,
+            preparado: true,
+          },
+          select: {
+            id: true,
+            cantidad: true,
+            comentarios: true,
+            para_barra: true,
+            preparado: true,
+            producto: {
+              select: {
+                id: true,
+                nombre: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    if (!orden) {
+      throw new BadRequestException('No se encontro la orden');
+    }
+
+    return orden;
   }
 }
